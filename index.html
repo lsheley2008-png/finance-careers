@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Desk — A Field Guide to Finance Careers</title>
+
+<!-- ============================================================
+     FONTS
+     Space Grotesk  → display / headline face (has the geometric,
+                       slightly technical character of a terminal readout)
+     Inter          → body copy, UI labels
+     JetBrains Mono → data, timestamps, tickers — the "terminal" voice
+============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind CDN (JIT — also watches the DOM, so classes we inject with JS render correctly) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['"Space Grotesk"', 'sans-serif'],
+          body: ['"Inter"', 'sans-serif'],
+          mono: ['"JetBrains Mono"', 'monospace'],
+        },
+        colors: {
+          navy: {
+            950: '#070A11',
+            900: '#0A0E17',
+            850: '#0D1220',
+            800: '#111827',
+            700: '#161D2E',
+            600: '#212A3E',
+            500: '#2C3752',
+          }
+        }
+      }
+    }
+  }
+</script>
+
+<!-- Lucide icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+<style>
+  /* ---------- Base ---------- */
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: #0A0E17;
+    background-image:
+      radial-gradient(circle at 15% 0%, rgba(139,127,251,0.08), transparent 40%),
+      radial-gradient(circle at 85% 15%, rgba(212,175,55,0.06), transparent 40%);
+    font-family: 'Inter', sans-serif;
+  }
+
+  ::selection { background: rgba(139,127,251,0.35); color: #fff; }
+
+  /* Thin custom scrollbar for horizontal scroll areas */
+  .thin-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+  .thin-scroll::-webkit-scrollbar-track { background: transparent; }
+  .thin-scroll::-webkit-scrollbar-thumb { background: #2C3752; border-radius: 999px; }
+
+  /* ---------- Scroll reveal ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(.16,.84,.44,1), transform 0.7s cubic-bezier(.16,.84,.44,1);
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Ticker ---------- */
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: ticker 38s linear infinite;
+  }
+  .ticker-track:hover { animation-play-state: paused; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ---------- Career card ---------- */
+  .career-card {
+    position: relative;
+    border: 1px solid #212A3E;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+    transition: transform 0.35s cubic-bezier(.16,.84,.44,1), border-color 0.35s ease, box-shadow 0.35s ease;
+  }
+  .career-card:hover, .career-card.is-active {
+    transform: translateY(-6px);
+    border-color: var(--accent);
+    box-shadow: 0 24px 48px -20px rgba(var(--accent-rgb), 0.45);
+  }
+  .career-card.is-active {
+    background: linear-gradient(180deg, rgba(var(--accent-rgb),0.08), rgba(255,255,255,0));
+  }
+
+  /* ---------- Tabs ---------- */
+  .tab-btn { border-bottom: 2px solid transparent; }
+  .tab-btn.is-active { border-bottom-color: var(--accent); color: #fff; }
+
+  /* ---------- Timeline ---------- */
+  .timeline-rail::before {
+    content: '';
+    position: absolute;
+    background: linear-gradient(180deg, var(--accent), transparent);
+    opacity: 0.35;
+  }
+  @media (min-width: 768px) {
+    .timeline-rail::before { top: 10px; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+  }
+  @media (max-width: 767px) {
+    .timeline-rail::before { top: 0; bottom: 0; left: 10px; width: 2px; }
+  }
+  .timeline-dot { box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.15); }
+
+  /* ---------- Rating bars ---------- */
+  .rating-track { background: #161D2E; }
+  .rating-fill { transition: width 1s cubic-bezier(.16,.84,.44,1); }
+
+  /* Focus visibility for keyboard users */
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid #8B7FFB;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track { animation: none; }
+    .reveal { transition: none; opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+
+<body class="text-slate-200 font-body antialiased overflow-x-hidden">
+
+<!-- ======================================================
+     NAV
+====================================================== -->
+<header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-navy-900/70 border-b border-navy-600/60">
+  <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-2 font-display font-semibold text-white tracking-tight">
+      <span class="w-2 h-2 rounded-full bg-[#8B7FFB]"></span>
+      THE&nbsp;DESK
+    </a>
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
+      <a href="#careers" class="hover:text-white transition-colors">Careers</a>
+      <a href="#detail" class="hover:text-white transition-colors">Breakdown</a>
+      <a href="#compare" class="hover:text-white transition-colors">Compare</a>
+    </nav>
+    <a href="#careers" class="hidden md:inline-flex items-center gap-1.5 text-sm font-semibold text-navy-950 bg-white hover:bg-slate-200 transition-colors px-4 py-2 rounded-full">
+      Explore desks
+      <i data-lucide="arrow-right" class="w-4 h-4"></i>
+    </a>
+    <!-- Mobile menu button -->
+    <button id="mobileMenuBtn" aria-label="Toggle navigation menu" class="md:hidden text-slate-300">
+      <i data-lucide="menu" class="w-6 h-6"></i>
+    </button>
+  </div>
+  <!-- Mobile menu panel -->
+  <div id="mobileMenu" class="hidden md:hidden border-t border-navy-600/60 bg-navy-900/95 px-5 py-4 flex flex-col gap-4 text-sm font-medium text-slate-300">
+    <a href="#careers" class="mobile-link">Careers</a>
+    <a href="#detail" class="mobile-link">Breakdown</a>
+    <a href="#compare" class="mobile-link">Compare</a>
+  </div>
+</header>
+
+<!-- ======================================================
+     HERO
+====================================================== -->
+<main id="top">
+<section class="relative pt-40 pb-24 px-5 sm:px-8">
+  <div class="max-w-4xl mx-auto text-center reveal">
+    <p class="font-mono text-xs tracking-[0.25em] text-[#8B7FFB] uppercase mb-5">A field guide to finance careers</p>
+    <h1 class="font-display text-4xl sm:text-6xl font-semibold text-white leading-[1.08] tracking-tight">
+      Demystifying <span class="relative inline-block">High Finance
+        <svg class="absolute left-0 -bottom-1 w-full" height="10" viewBox="0 0 300 10" preserveAspectRatio="none">
+          <path d="M2 8 C 80 2, 220 2, 298 8" stroke="#D4AF37" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </span>.
+    </h1>
+    <p class="mt-7 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+      Five paths, five clocks, five different ways to make markets move. See what the day-to-day,
+      the required skills, and the real trade-offs look like — before you pick a desk.
+    </p>
+    <div class="mt-9 flex items-center justify-center gap-4">
+      <a href="#careers" id="ctaExplore" class="inline-flex items-center gap-2 bg-white text-navy-950 font-semibold text-sm px-6 py-3.5 rounded-full hover:bg-slate-200 transition-all hover:scale-[1.03]">
+        Explore careers
+        <i data-lucide="arrow-down" class="w-4 h-4"></i>
+      </a>
+      <a href="#compare" class="inline-flex items-center gap-2 border border-navy-500 text-slate-300 font-semibold text-sm px-6 py-3.5 rounded-full hover:border-slate-300 hover:text-white transition-all">
+        Compare tracks
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================
+     SIGNATURE ELEMENT — market-style ticker strip
+     Grounds the page in the texture of the subject: a scrolling
+     readout of the vocabulary each desk actually lives in.
+====================================================== -->
+<section class="border-y border-navy-600/60 bg-navy-850/60 py-3.5 overflow-hidden select-none" aria-hidden="true">
+  <div class="ticker-track font-mono text-xs sm:text-sm text-slate-400" id="tickerTrack"></div>
+</section>
+
+<!-- ======================================================
+     CAREER GRID
+====================================================== -->
+<section id="careers" class="max-w-7xl mx-auto px-5 sm:px-8 pt-24 pb-6 scroll-mt-16">
+  <div class="reveal mb-12 max-w-2xl">
+    <p class="font-mono text-xs tracking-[0.25em] text-slate-500 uppercase mb-3">01 — The desks</p>
+    <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white tracking-tight">Choose a track to break down.</h2>
+    <p class="mt-3 text-slate-400">Tap any card below — the breakdown updates instantly, no reload.</p>
+  </div>
+
+  <div id="careerGrid" class="reveal grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4"></div>
+</section>
+
+<!-- ======================================================
+     DETAIL PANEL (populated dynamically by JS)
+====================================================== -->
+<section id="detail" class="max-w-7xl mx-auto px-5 sm:px-8 pt-16 pb-24 scroll-mt-16">
+  <div id="detailPanel" class="reveal"></div>
+</section>
+
+<!-- ======================================================
+     COMPARISON TOOL
+====================================================== -->
+<section id="compare" class="max-w-7xl mx-auto px-5 sm:px-8 py-24 scroll-mt-16">
+  <div class="reveal mb-12 max-w-2xl">
+    <p class="font-mono text-xs tracking-[0.25em] text-slate-500 uppercase mb-3">02 — The trade-offs</p>
+    <h2 class="font-display text-3xl sm:text-4xl font-semibold text-white tracking-tight">Compare tracks side by side.</h2>
+    <p class="mt-3 text-slate-400">Every desk trades something for something else. Here's the honest matrix.</p>
+  </div>
+
+  <div class="reveal overflow-x-auto thin-scroll rounded-2xl border border-navy-600/60">
+    <table class="w-full min-w-[720px] border-collapse text-sm">
+      <thead>
+        <tr class="bg-navy-850/80">
+          <th class="text-left font-mono text-xs uppercase tracking-wider text-slate-500 font-medium px-5 py-4 sticky left-0 bg-navy-850/80">Dimension</th>
+          <!-- career columns injected by JS -->
+          <th id="compareHeadRow" class="contents"></th>
+        </tr>
+      </thead>
+      <tbody id="compareBody"></tbody>
+    </table>
+  </div>
+  <p class="reveal mt-4 text-xs text-slate-500 font-mono">Bars reflect relative intensity within these five tracks, not an absolute industry scale.</p>
+</section>
+
+<!-- ======================================================
+     FOOTER
+====================================================== -->
+<footer class="border-t border-navy-600/60 py-10 px-5 sm:px-8">
+  <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
+    <p>THE DESK — an educational field guide. Not career advice, not compensation guidance.</p>
+    <p>Built for people deciding where to start.</p>
+  </div>
+</footer>
+
+</main>
+
+<script>
+/* ============================================================
+   DATA
+   All copy for the five tracks lives here — the DOM below is
+   generated entirely from this object, so adding a 6th track
+   only requires adding a 6th entry.
+============================================================ */
+const CAREERS = [
+  {
+    id: 'ib',
+    code: 'IB',
+    name: 'Investment Banking',
+    icon: 'landmark',
+    accent: '#D4AF37',
+    accentRgb: '212,175,55',
+    tagline: 'Architecting the deals that reshape industries.',
+    overview: "Investment bankers advise corporations on mergers, acquisitions, and raising capital. The job means turning a company's story into a model, and a model into a pitch that can move a boardroom — usually against a brutal deadline.",
+    technicalSkills: ['Financial modeling & LBOs', 'Valuation (DCF, comps, precedents)', 'Advanced Excel & PowerPoint', 'Deal execution & diligence'],
+    softSkills: ['High-pressure stamina', 'Precision under deadline', 'Client-facing polish', 'Negotiation instinct'],
+    timeline: [
+      { time: '7:30 AM', title: 'Market open briefing', desc: "Scan overnight news, comps, and deal chatter before the desk wakes up." },
+      { time: '9:00 AM', title: 'Deal team stand-up', desc: 'Status check across live mandates with the VP and associates.' },
+      { time: '11:00 AM', title: 'Client call', desc: 'Walk a CFO through valuation assumptions ahead of a board meeting.' },
+      { time: '1:00 PM', title: 'Model build', desc: 'Heads-down DCF and LBO work, iterating on sensitivity cases.' },
+      { time: '4:00 PM', title: 'Pitchbook revisions', desc: 'Turn MD comments on slide 14 into slide 14, version 9.' },
+      { time: '8:00 PM', title: 'Working dinner', desc: 'Order in. Keep building.' },
+      { time: '11:00 PM', title: 'Overnight comments', desc: 'Send the deck up the chain, wait for the next markup.' },
+      { time: '1:30 AM', title: 'Lights out', desc: 'Rinse, repeat tomorrow.' },
+    ],
+    ratings: { comp: 5, worklife: 1, stress: 5, intensity: 2, client: 4 },
+  },
+  {
+    id: 'quant',
+    code: 'QUANT',
+    name: 'Quantitative Analysis',
+    icon: 'brain-circuit',
+    accent: '#8B7FFB',
+    accentRgb: '139,127,251',
+    tagline: 'Writing the math that prices risk before the market does.',
+    overview: 'Quants design mathematical models and algorithms that price derivatives, manage risk, or drive systematic trading strategies. The role sits at the intersection of advanced mathematics and production-grade code.',
+    technicalSkills: ['Python & C++', 'Stochastic calculus & PDEs', 'Statistics and probability', 'Machine learning / backtesting'],
+    softSkills: ['Research rigor', 'Comfort with ambiguity', 'Written clarity on complex ideas', 'Collaboration with traders/engineers'],
+    timeline: [
+      { time: '6:30 AM', title: 'Literature review', desc: 'Read a paper or internal research note before the market opens.' },
+      { time: '8:00 AM', title: 'Stand-up', desc: 'Sync with the desk on model performance overnight.' },
+      { time: '9:30 AM', title: 'Model development', desc: 'Refine a pricing model or signal in a research notebook.' },
+      { time: '12:00 PM', title: 'Backtest review', desc: "Stress-test a strategy's assumptions against new data." },
+      { time: '2:00 PM', title: 'Pair programming', desc: 'Ship a model into the production trading system with an engineer.' },
+      { time: '5:00 PM', title: 'Risk review', desc: 'Walk risk managers through exposure and edge cases.' },
+      { time: '7:00 PM', title: 'Wrap up', desc: 'Log findings, close the notebook, head out.' },
+    ],
+    ratings: { comp: 5, worklife: 3, stress: 3, intensity: 5, client: 1 },
+  },
+  {
+    id: 'pwm',
+    code: 'PWM',
+    name: 'Private Wealth Management',
+    icon: 'handshake',
+    accent: '#12D48E',
+    accentRgb: '18,212,142',
+    tagline: 'Building decades-long relationships, one portfolio at a time.',
+    overview: 'Private wealth managers work directly with high-net-worth individuals and families, crafting personalized investment strategies, estate plans, and long-term financial goals across generations.',
+    technicalSkills: ['Portfolio construction', 'Tax & estate planning basics', 'CFA / CFP coursework', 'Risk profiling tools'],
+    softSkills: ['Relationship management', 'Active listening', 'Sales & business development', 'Discretion and trust-building'],
+    timeline: [
+      { time: '8:00 AM', title: 'Market briefing', desc: 'Prep talking points for clients who will ask about overnight moves.' },
+      { time: '9:30 AM', title: 'Client meeting', desc: 'Review a portfolio against a family\u2019s changing goals.' },
+      { time: '11:30 AM', title: 'Portfolio review', desc: 'Rebalance allocations with the investment team.' },
+      { time: '1:00 PM', title: 'Prospect lunch', desc: 'Build a relationship that may become a client in a year.' },
+      { time: '3:00 PM', title: 'Planning session', desc: 'Coordinate with a client\u2019s accountant on a trust structure.' },
+      { time: '5:00 PM', title: 'Wrap-up', desc: 'Follow-up notes and calendar for tomorrow\u2019s meetings.' },
+    ],
+    ratings: { comp: 4, worklife: 4, stress: 2, intensity: 2, client: 5 },
+  },
+  {
+    id: 'er',
+    code: 'ER',
+    name: 'Equity Research',
+    icon: 'line-chart',
+    accent: '#38BDF8',
+    accentRgb: '56,189,248',
+    tagline: 'Turning a company\u2019s filings into a conviction.',
+    overview: 'Equity research analysts study public companies and industries to publish investment recommendations, building detailed models and writing reports that guide institutional investors\u2019 decisions.',
+    technicalSkills: ['Financial modeling', 'Industry & competitive research', 'Valuation frameworks', 'Bloomberg / FactSet fluency'],
+    softSkills: ['Persuasive writing', 'Public speaking (earnings calls)', 'Independent judgment', 'Skepticism toward consensus'],
+    timeline: [
+      { time: '6:00 AM', title: 'Earnings reaction', desc: 'React to overnight earnings before the market opens.' },
+      { time: '7:15 AM', title: 'Morning call notes', desc: 'Publish a note ahead of the desk-wide morning meeting.' },
+      { time: '9:30 AM', title: 'Market open monitoring', desc: 'Watch how the stock trades against your thesis.' },
+      { time: '11:00 AM', title: 'Company research', desc: 'Read filings, call suppliers, build a mosaic of the business.' },
+      { time: '2:00 PM', title: 'Model updates', desc: 'Update estimates for a name reporting next week.' },
+      { time: '6:00 PM', title: 'Report writing', desc: 'Draft the next initiation or rating change.' },
+    ],
+    ratings: { comp: 3, worklife: 3, stress: 3, intensity: 4, client: 3 },
+  },
+  {
+    id: 'corp',
+    code: 'CORP FIN',
+    name: 'Corporate Finance',
+    icon: 'building-2',
+    accent: '#FB8A5B',
+    accentRgb: '251,138,91',
+    tagline: 'Steering one company\u2019s money instead of everyone else\u2019s.',
+    overview: 'Corporate finance professionals manage a company\u2019s internal financial planning, budgeting, capital allocation, and strategic decisions \u2014 working from inside a single organization rather than advising outside clients.',
+    technicalSkills: ['FP&A & budgeting', 'Forecasting & variance analysis', 'Excel / ERP systems', 'Capital allocation frameworks'],
+    softSkills: ['Cross-functional communication', 'Strategic thinking', 'Stakeholder management', 'Business partnering'],
+    timeline: [
+      { time: '8:30 AM', title: 'Team sync', desc: 'Align on priorities with the FP&A team.' },
+      { time: '9:30 AM', title: 'Budget review', desc: 'Walk a department head through their quarterly spend.' },
+      { time: '11:00 AM', title: 'Stakeholder meeting', desc: 'Present a capital project business case to leadership.' },
+      { time: '1:00 PM', title: 'Forecast modeling', desc: 'Update the rolling forecast with latest actuals.' },
+      { time: '3:00 PM', title: 'Presentation prep', desc: 'Build slides for next week\u2019s board update.' },
+      { time: '5:30 PM', title: 'Wrap-up', desc: 'Close the laptop \u2014 most nights end here.' },
+    ],
+    ratings: { comp: 3, worklife: 5, stress: 2, intensity: 3, client: 3 },
+  },
+];
+
+const COMPARE_DIMENSIONS = [
+  { key: 'worklife',  label: 'Work-Life Balance',       icon: 'moon' },
+  { key: 'intensity', label: 'Math / Coding Intensity', icon: 'code' },
+  { key: 'comp',      label: 'Compensation Potential',  icon: 'banknote' },
+  { key: 'client',    label: 'Client Interaction',      icon: 'users' },
+];
+
+const LIFESTYLE_ROWS = [
+  { key: 'comp',     label: 'Compensation' },
+  { key: 'worklife', label: 'Work-Life Balance' },
+  { key: 'stress',   label: 'Stress Level' },
+];
+
+let activeCareerId = null;
+let activeTab = 'overview';
+
+/* ============================================================
+   HELPERS
+============================================================ */
+function starRow(value, accent) {
+  let out = '';
+  for (let i = 1; i <= 5; i++) {
+    out += `<i data-lucide="star" class="w-4 h-4 ${i <= value ? '' : 'opacity-20'}" style="color:${accent}; fill:${i <= value ? accent : 'none'}"></i>`;
+  }
+  return `<div class="flex items-center gap-1">${out}</div>`;
+}
+
+function ratingBar(value, accent, accentRgb) {
+  const pct = (value / 5) * 100;
+  return `
+    <div class="w-full h-2 rounded-full rating-track overflow-hidden">
+      <div class="h-full rounded-full rating-fill" style="width:${pct}%; background:${accent}; box-shadow:0 0 12px rgba(${accentRgb},0.6);"></div>
+    </div>`;
+}
+
+/* ============================================================
+   TICKER
+============================================================ */
+function buildTicker() {
+  const items = [
+    'IB \u00b7 LBO MODELING \u00b7 100HR WEEKS',
+    'QUANT \u00b7 STOCHASTIC CALCULUS \u00b7 SHARPE 2.1',
+    'PWM \u00b7 AUM $250M \u00b7 CFA LEVEL III',
+    'ER \u00b7 EPS BEAT \u00b7 INITIATING COVERAGE, BUY',
+    'CORP FIN \u00b7 FP&A \u00b7 ROIC 14.2%',
+    'IB \u00b7 PITCHBOOK V9 \u00b7 MD COMMENTS PENDING',
+    'QUANT \u00b7 BACKTEST \u00b7 OUT-OF-SAMPLE ALPHA',
+    'PWM \u00b7 ESTATE PLAN \u00b7 GENERATIONAL TRANSFER',
+    'ER \u00b7 MODEL UPDATE \u00b7 PRICE TARGET RAISED',
+    'CORP FIN \u00b7 ROLLING FORECAST \u00b7 VARIANCE -2%',
+  ];
+  const track = document.getElementById('tickerTrack');
+  const html = items.map(t => `<span class="px-6 whitespace-nowrap flex items-center gap-2"><span class="w-1 h-1 rounded-full bg-slate-600"></span>${t}</span>`).join('');
+  // duplicate the content once for a seamless 50%-translate loop
+  track.innerHTML = html + html;
+}
+
+/* ============================================================
+   CAREER GRID
+============================================================ */
+function buildCareerGrid() {
+  const grid = document.getElementById('careerGrid');
+  grid.innerHTML = CAREERS.map(c => `
+    <button
+      class="career-card group text-left rounded-2xl p-5 flex flex-col gap-4"
+      style="--accent:${c.accent}; --accent-rgb:${c.accentRgb};"
+      data-career="${c.id}"
+      aria-pressed="false"
+    >
+      <div class="flex items-center justify-between">
+        <div class="w-11 h-11 rounded-xl flex items-center justify-center" style="background:rgba(${c.accentRgb},0.14);">
+          <i data-lucide="${c.icon}" class="w-5 h-5" style="color:${c.accent}"></i>
+        </div>
+        <span class="font-mono text-[10px] tracking-widest text-slate-500 uppercase">${c.code}</span>
+      </div>
+      <div>
+        <h3 class="font-display text-white font-semibold text-lg leading-snug">${c.name}</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">${c.tagline}</p>
+      </div>
+      <div class="mt-auto pt-3 flex items-center gap-1.5 text-sm font-semibold" style="color:${c.accent}">
+        View breakdown
+        <i data-lucide="arrow-right" class="w-3.5 h-3.5 transition-transform group-hover:translate-x-1"></i>
+      </div>
+    </button>
+  `).join('');
+
+  grid.querySelectorAll('[data-career]').forEach(btn => {
+    btn.addEventListener('click', () => selectCareer(btn.getAttribute('data-career'), true));
+  });
+
+  lucide.createIcons();
+}
+
+function updateActiveCardStyling() {
+  document.querySelectorAll('[data-career]').forEach(btn => {
+    const isActive = btn.getAttribute('data-career') === activeCareerId;
+    btn.classList.toggle('is-active', isActive);
+    btn.setAttribute('aria-pressed', String(isActive));
+  });
+}
+
+/* ============================================================
+   DETAIL PANEL
+============================================================ */
+function selectCareer(id, shouldScroll) {
+  activeCareerId = id;
+  activeTab = 'overview';
+  updateActiveCardStyling();
+  renderDetailPanel();
+  if (shouldScroll) {
+    document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function renderDetailPanel() {
+  const panel = document.getElementById('detailPanel');
+  const c = CAREERS.find(x => x.id === activeCareerId);
+
+  if (!c) {
+    panel.innerHTML = `
+      <div class="rounded-2xl border border-dashed border-navy-600 py-20 px-8 text-center">
+        <i data-lucide="mouse-pointer-click" class="w-8 h-8 mx-auto text-slate-600 mb-4"></i>
+        <p class="text-slate-500 font-mono text-sm">Select a desk above to see the full breakdown.</p>
+      </div>`;
+    lucide.createIcons();
+    return;
+  }
+
+  panel.innerHTML = `
+    <div class="rounded-2xl border border-navy-600/60 overflow-hidden" style="--accent:${c.accent}; --accent-rgb:${c.accentRgb};">
+
+      <!-- Header -->
+      <div class="p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-5 justify-between border-b border-navy-600/60" style="background:linear-gradient(120deg, rgba(${c.accentRgb},0.10), transparent);">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0" style="background:rgba(${c.accentRgb},0.16);">
+            <i data-lucide="${c.icon}" class="w-7 h-7" style="color:${c.accent}"></i>
+          </div>
+          <div>
+            <p class="font-mono text-[10px] tracking-widest uppercase" style="color:${c.accent}">${c.code} \u00b7 Breakdown</p>
+            <h3 class="font-display text-2xl sm:text-3xl font-semibold text-white">${c.name}</h3>
+          </div>
+        </div>
+        <p class="text-slate-400 text-sm max-w-xs">${c.tagline}</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex items-center gap-6 px-6 sm:px-8 border-b border-navy-600/60 overflow-x-auto thin-scroll" id="tabRow">
+        ${tabButton('overview', 'Overview & Skills', c.accent)}
+        ${tabButton('timeline', 'Day in the Life', c.accent)}
+        ${tabButton('lifestyle', 'Lifestyle Ratings', c.accent)}
+      </div>
+
+      <!-- Tab content -->
+      <div class="p-6 sm:p-8" id="tabContent"></div>
+    </div>
+  `;
+
+  document.getElementById('tabRow').querySelectorAll('[data-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTab = btn.getAttribute('data-tab');
+      renderTabButtons(c.accent);
+      renderTabContent(c);
+    });
+  });
+
+  renderTabButtons(c.accent);
+  renderTabContent(c);
+  lucide.createIcons();
+}
+
+function tabButton(key, label, accent) {
+  return `<button data-tab="${key}" class="tab-btn py-4 text-sm font-semibold whitespace-nowrap text-slate-400 hover:text-white transition-colors" style="--accent:${accent}">${label}</button>`;
+}
+
+function renderTabButtons(accent) {
+  document.querySelectorAll('#tabRow [data-tab]').forEach(btn => {
+    btn.classList.toggle('is-active', btn.getAttribute('data-tab') === activeTab);
+  });
+}
+
+function renderTabContent(c) {
+  const el = document.getElementById('tabContent');
+
+  if (activeTab === 'overview') {
+    el.innerHTML = `
+      <p class="text-slate-300 leading-relaxed max-w-3xl">${c.overview}</p>
+      <div class="grid sm:grid-cols-2 gap-6 mt-8">
+        <div>
+          <p class="font-mono text-[11px] tracking-widest uppercase text-slate-500 mb-3">Technical skills</p>
+          <ul class="space-y-2.5">
+            ${c.technicalSkills.map(s => `
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:${c.accent}"></i>${s}
+              </li>`).join('')}
+          </ul>
+        </div>
+        <div>
+          <p class="font-mono text-[11px] tracking-widest uppercase text-slate-500 mb-3">Soft skills</p>
+          <ul class="space-y-2.5">
+            ${c.softSkills.map(s => `
+              <li class="flex items-start gap-2.5 text-sm text-slate-300">
+                <i data-lucide="check" class="w-4 h-4 mt-0.5 shrink-0" style="color:${c.accent}"></i>${s}
+              </li>`).join('')}
+          </ul>
+        </div>
+      </div>
+    `;
+  }
+
+  if (activeTab === 'timeline') {
+    el.innerHTML = `
+      <p class="font-mono text-[11px] tracking-widest uppercase text-slate-500 mb-8">A representative weekday</p>
+      <div class="relative timeline-rail md:flex md:items-start md:gap-2 flex flex-col gap-8 md:gap-0" style="--accent:${c.accent}; --accent-rgb:${c.accentRgb};">
+        ${c.timeline.map(step => `
+          <div class="relative flex md:flex-col gap-4 md:gap-3 md:flex-1 md:min-w-[110px] pl-8 md:pl-0">
+            <span class="timeline-dot absolute md:static left-0 md:left-auto top-1 w-2.5 h-2.5 rounded-full shrink-0" style="background:${c.accent}"></span>
+            <div class="md:mt-4">
+              <p class="font-mono text-xs font-semibold" style="color:${c.accent}">${step.time}</p>
+              <p class="text-white text-sm font-semibold mt-1">${step.title}</p>
+              <p class="text-slate-400 text-xs mt-1 leading-relaxed md:pr-3">${step.desc}</p>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  if (activeTab === 'lifestyle') {
+    el.innerHTML = `
+      <p class="font-mono text-[11px] tracking-widest uppercase text-slate-500 mb-8">How the role actually feels, out of 5</p>
+      <div class="space-y-6 max-w-xl">
+        ${LIFESTYLE_ROWS.map(row => `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-slate-300">${row.label}</span>
+              ${starRow(c.ratings[row.key], c.accent)}
+            </div>
+            ${ratingBar(c.ratings[row.key], c.accent, c.accentRgb)}
+          </div>
+        `).join('')}
+      </div>
+      <p class="text-xs text-slate-500 mt-8 font-mono max-w-xl leading-relaxed">
+        Note: "Stress Level" is rated so that a higher bar means more stress \u2014 it is not a positive-is-better scale like the other two.
+      </p>
+    `;
+  }
+
+  lucide.createIcons();
+}
+
+/* ============================================================
+   COMPARISON TABLE
+============================================================ */
+function buildComparisonTable() {
+  const headRow = document.getElementById('compareHeadRow');
+  headRow.outerHTML = CAREERS.map(c => `
+    <th class="text-left font-mono text-xs uppercase tracking-wider font-medium px-5 py-4 whitespace-nowrap" style="color:${c.accent}">
+      <span class="inline-flex items-center gap-2">
+        <i data-lucide="${c.icon}" class="w-3.5 h-3.5"></i>${c.code}
+      </span>
+    </th>
+  `).join('');
+
+  const body = document.getElementById('compareBody');
+  body.innerHTML = COMPARE_DIMENSIONS.map((dim, i) => `
+    <tr class="${i % 2 === 0 ? 'bg-navy-850/30' : ''} border-t border-navy-600/40">
+      <td class="px-5 py-5 sticky left-0 ${i % 2 === 0 ? 'bg-navy-850' : 'bg-navy-900'} text-sm font-medium text-white whitespace-nowrap">
+        <span class="inline-flex items-center gap-2">
+          <i data-lucide="${dim.icon}" class="w-4 h-4 text-slate-500"></i>${dim.label}
+        </span>
+      </td>
+      ${CAREERS.map(c => `
+        <td class="px-5 py-5 min-w-[140px]">
+          <div class="flex items-center gap-3">
+            ${ratingBar(c.ratings[dim.key], c.accent, c.accentRgb)}
+            <span class="font-mono text-xs text-slate-500 shrink-0">${c.ratings[dim.key]}/5</span>
+          </div>
+        </td>
+      `).join('')}
+    </tr>
+  `).join('');
+
+  lucide.createIcons();
+}
+
+/* ============================================================
+   SCROLL REVEAL
+============================================================ */
+function initScrollReveal() {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+}
+
+/* ============================================================
+   MOBILE MENU
+============================================================ */
+function initMobileMenu() {
+  const btn = document.getElementById('mobileMenuBtn');
+  const menu = document.getElementById('mobileMenu');
+  btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.add('hidden')));
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  buildTicker();
+  buildCareerGrid();
+  renderDetailPanel();      // renders the empty state initially
+  buildComparisonTable();
+  initScrollReveal();
+  initMobileMenu();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>
